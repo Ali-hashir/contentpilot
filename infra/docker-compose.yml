@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    container_name: contentpilot-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend:/app         # hot-reload while developing
+    restart: unless-stopped
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: contentpilot-n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=changeme        # change later
+      - GENERIC_TIMEZONE=Asia/Karachi
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: contentpilot-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  n8n_data:
