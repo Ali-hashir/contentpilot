@@ -1,0 +1,151 @@
+{
+  "name": "ContentPilot Demo",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "10c1bccc-29c2-4418-8e68-e69295b209b1",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7e175f1c-2af1-4534-b668-70af6668dec3",
+              "name": "keyword",
+              "value": "\"best protein powder\"",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7c5cb53d-d913-4ee6-8a8c-1c19b776dbe3",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "value": "Ali-hashir",
+          "mode": "list",
+          "cachedResultName": "Ali-hashir",
+          "cachedResultUrl": "https://github.com/Ali-hashir"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "contentpilot",
+          "mode": "list",
+          "cachedResultName": "contentpilot",
+          "cachedResultUrl": "https://github.com/Ali-hashir/contentpilot"
+        },
+        "filePath": "=content/{{ new Date().toISOString().slice(0,10) }}-{{ $('Edit Fields').item.json.keyword.toLowerCase().replace(/ /g,'-')}}.md",
+        "fileContent": "={{$node[\"Generate Article\"].json[\"content\"]}}",
+        "commitMessage": "=Add draft for {{ $('Edit Fields').item.json.keyword }}"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "5e7e0d73-c180-4675-b85b-174edc37df67",
+      "name": "Create a file",
+      "webhookId": "a60b1b98-5e88-4a88-81b1-07f179a2efe7",
+      "credentials": {
+        "githubApi": {
+          "id": "Ionf12gMbhMnWo3V",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8000/agents/write",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "keyword",
+              "value": "={{$json[\"keyword\"]}}"
+            },
+            {
+              "name": "words",
+              "value": "500"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "b76a6d32-3cdf-408f-afda-8c576dc8ea86",
+      "name": "Generate Article"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Generate Article",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Article": {
+      "main": [
+        [
+          {
+            "node": "Create a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7a770c3b-656a-4dc0-bbcf-43b782116029",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "15fead42e649f1fba5189564f04c6e72d0b7b4096991e42a8b1515f1b818a796"
+  },
+  "id": "igiTP1bRE68aZNzj",
+  "tags": []
+}
