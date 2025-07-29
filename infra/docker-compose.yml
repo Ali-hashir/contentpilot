@@ -10,6 +10,9 @@ services:
       - "8000:8000"
     volumes:
       - ../backend:/app         # hot-reload while developing
+    depends_on:
+      - redis
+      - ollama
     restart: unless-stopped
 
   n8n:
@@ -28,6 +31,15 @@ services:
       - redis
     restart: unless-stopped
 
+  ollama:
+    image: ollama/ollama:0.1.34
+    container_name: contentpilot-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama   # persists model files
+    restart: unless-stopped
+
   redis:
     image: redis:7-alpine
     container_name: contentpilot-redis
@@ -37,3 +49,4 @@ services:
 
 volumes:
   n8n_data:
+  ollama_models:
