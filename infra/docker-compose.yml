@@ -11,6 +11,13 @@ services:
     volumes:
       - ../backend:/app/backend
     command: ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3.2:1b-instruct-q5_K_M
+      # or: OLLAMA_MODEL=phi3:mini
+      # or: OLLAMA_MODEL=qwen2.5:1.5b-instruct
+    depends_on:
+      - ollama
     restart: unless-stopped
 
   n8n:
@@ -31,4 +38,15 @@ services:
       - ../n8n_data:/home/node/.n8n
     depends_on:
       - backend
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: contentpilot-ollama
+    ports:
+      - "11434:11434"   # optional (host access); containers use http://ollama:11434
+    volumes:
+      - ../ollama_data:/root/.ollama   # persist models between runs
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h          # keep models warm in dev
     restart: unless-stopped
