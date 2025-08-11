@@ -1,19 +1,16 @@
-# backend/Dockerfile
 FROM python:3.11-slim
-
-# Faster installs
-ENV POETRY_VERSION=1.8.2 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Copy & install only requirements first (speeds rebuilds)
-COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# System deps (optional but helpful)
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-# Copy rest of the code
-COPY backend/ .
+# Python deps
+COPY backend/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-EXPOSE 8000
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# App code
+COPY backend /app/backend
+
+# Run server
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

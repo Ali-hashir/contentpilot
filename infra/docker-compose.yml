@@ -8,11 +8,6 @@ services:
     container_name: contentpilot-backend
     ports:
       - "8000:8000"
-    volumes:
-      - ../backend:/app         # hot-reload while developing
-    depends_on:
-      - redis
-      - ollama
     restart: unless-stopped
 
   n8n:
@@ -21,32 +16,16 @@ services:
     ports:
       - "5678:5678"
     environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=changeme        # change later
-      - GENERIC_TIMEZONE=Asia/Karachi
+      - N8N_BASIC_AUTH_PASSWORD=changeme
+      # Keep executions in main process for simplicity in dev
+      - EXECUTIONS_PROCESS=main
     volumes:
-      - n8n_data:/home/node/.n8n
+      - ../n8n_data:/home/node/.n8n
     depends_on:
-      - redis
+      - backend
     restart: unless-stopped
-
-  ollama:
-    image: ollama/ollama:0.1.34
-    container_name: contentpilot-ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_models:/root/.ollama   # persists model files
-    restart: unless-stopped
-
-  redis:
-    image: redis:7-alpine
-    container_name: contentpilot-redis
-    ports:
-      - "6379:6379"
-    restart: unless-stopped
-
-volumes:
-  n8n_data:
-  ollama_models:
